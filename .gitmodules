@@ -1,3 +1,0 @@
-[submodule "alexandre-le-borgne/oauth-server"]
-	path = vendor/alexandre-le-borgne/oauth-server
-	url = https://github.com/alexandre-le-borgne/oauth-server.git
