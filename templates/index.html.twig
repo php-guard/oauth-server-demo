@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <a href="{{ path('app_oauth_authorize', {
+        client_id: client.identifier,
+        response_type: 'code',
+        redirect_uri: client.redirectUris[0],
+        state: state
+    }) }}">Authorize</a>
+
+    {#<form method="get" action="{{ path('app_oauth_authorize') }}">#}
+        {#<input type="">#}
+    {#</form>#}
+
+    <a href="https://developers.google.com/oauthplayground/#step1&scopes=email&url=https%3A%2F%2F&content_type=application%2Fjson&http_method=GET&useDefaultOauthCred=unchecked&oauthEndpointSelect=Custom&oauthAuthEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Fauthorize&oauthTokenEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Ftoken&oauthClientId=6ffdbf88e60e22a22917&oauthClientSecret=f050becad22c27a1d47c&includeCredentials=checked&accessTokenType=bearer&autoRefreshToken=unchecked&accessType=offline&prompt=consent&response_type=code">
+        Google playground
+    </a>
+{% endblock %}

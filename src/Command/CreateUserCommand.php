@@ -9,7 +9,7 @@
 namespace App\Command;
 
 
-use App\Security\User;
+use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -45,16 +45,14 @@ class CreateUserCommand extends Command
         $this
             // the name of the command (the part after "bin/console")
             ->setName('app:create-user')
-
             // the short description shown while running "php bin/console list"
             ->setDescription('Creates a new user.')
-
             // the full command description shown when running the command with
             // the "--help" option
             ->setHelp('This command allows you to create a user...')
             ->addArgument('username', InputArgument::REQUIRED, 'The username of the user.')
-            ->addArgument('password', InputArgument::REQUIRED, 'The password of the user.')
-        ;
+            ->addArgument('email', InputArgument::REQUIRED, 'The email of the user.')
+            ->addArgument('password', InputArgument::REQUIRED, 'The password of the user.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -71,33 +69,31 @@ class CreateUserCommand extends Command
 
         // outputs a message without adding a "\n" at the end of the line
         $output->write('You are about to ');
-        $output->write('create a user.');
+        $output->writeln('create a user.');
 
-        do {
-            $output->writeln('Username: '.$input->getArgument('username'));
-            $output->writeln('Password: '.$input->getArgument('password'));
+        $user = new User();
+        $user->setUsername($input->getArgument('username'));
+        $user->setEmail($input->getArgument('email'));
+        $user->setPlainPassword($input->getArgument('password'));
 
-            $user = new User();
-            $user->setUsername($input->getArgument('username'));
-            $user->setPlainPassword($input->getArgument('password'));
+        $password = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());
+        $user->setPassword($password);
 
-            $password = $this->passwordEncoder->encodePassword($user, $user->getPlainPassword());
-            $user->setPassword($password);
+        $errors = $this->validator->validate($user);
+        if (count($errors) > 0) {
+            /*
+             * Uses a __toString method on the $errors variable which is a
+             * ConstraintViolationList object. This gives us a nice string
+             * for debugging.
+             */
+            $errorsString = (string)$errors;
+            $output->writeln('Errors: ' . $errorsString);
+        } else {
+            $this->em->persist($user);
+            $this->em->flush();
 
-            $errors = $this->validator->validate($user);
-            if (count($errors) > 0) {
-                /*
-                 * Uses a __toString method on the $errors variable which is a
-                 * ConstraintViolationList object. This gives us a nice string
-                 * for debugging.
-                 */
-                $errorsString = (string)$errors;
-                $output->writeln('Errors: '.$errorsString);
-            }
-
-        } while(count($errors));
-
-        $this->em->persist($user);
-        $this->em->flush();
+            $output->writeln('Username: ' . $user->getUsername());
+            $output->writeln('Password: ' . $user->getPlainPassword());
+        }
     }
 }

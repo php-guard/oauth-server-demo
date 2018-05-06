@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    {{ form_start(form) }}
+    {{ form_row(form.clientName) }}
+
+
+    {#{{ form_label(form.redirectUris) }}#}
+    {#<ul id="redirect-uris-fields-list"#}
+        {#data-prototype="{{ form_widget(form.redirectUris.vars.prototype)|e }}"#}
+        {#data-widget-tags="{{ '<li></li>'|e }}">#}
+        {#{% for redirectUriField in form.redirectUris %}#}
+            {#<li>#}
+                {#{{ form_errors(redirectUriField) }}#}
+                {#{{ form_widget(redirectUriField) }}#}
+            {#</li>#}
+        {#{% endfor %}#}
+    {#</ul>#}
+
+    {#<a href="#"#}
+       {#class="add-another-collection-widget"#}
+       {#data-list="#redirect-uris-fields-list">Add another redirect uri</a>#}
+
+    {{ form_end(form) }}
+{% endblock %}

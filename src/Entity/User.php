@@ -6,9 +6,13 @@
  * Time: 14:59
  */
 
-namespace App\Security;
+namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\ManyToMany;
+use OAuth2\Roles\ClientInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -55,6 +59,15 @@ class User implements UserInterface, \Serializable
      */
     private $password;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Authorization", mappedBy="resourceOwner", orphanRemoval=true)
+     */
+    private $authorizedClients;
+
+    public function __construct()
+    {
+        $this->authorizedClients = new ArrayCollection();
+    }
 
     /**
      * Returns the username used to authenticate the user.
@@ -143,5 +156,37 @@ class User implements UserInterface, \Serializable
             // $this->salt
             ) = unserialize($serialized, ['allowed_classes' => false]);
     }
+
+    /**
+     * @return Collection|Authorization[]
+     */
+    public function getAuthorizedClients(): Collection
+    {
+        return $this->authorizedClients;
+    }
+
+    public function addAuthorizedClient(Authorization $authorizedClient): self
+    {
+        if (!$this->authorizedClients->contains($authorizedClient)) {
+            $this->authorizedClients[] = $authorizedClient;
+            $authorizedClient->setResourceOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAuthorizedClient(Authorization $authorizedClient): self
+    {
+        if ($this->authorizedClients->contains($authorizedClient)) {
+            $this->authorizedClients->removeElement($authorizedClient);
+            // set the owning side to null (unless already changed)
+            if ($authorizedClient->getResourceOwner() === $this) {
+                $authorizedClient->setResourceOwner(null);
+            }
+        }
+
+        return $this;
+    }
+
 
 }

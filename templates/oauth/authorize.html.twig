@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+{% block body %}
+    <form method="post" action="{{ path('app_oauth_authorize') }}">
+        {% for k, v in data %}
+            <input type="hidden" name="{{ k }}" value="{{ v }}">
+        {% endfor %}
+        <button type="submit" name="authorization" value="deny">Deny</button>
+        <button type="submit" name="authorization" value="allow">Allow</button>
+    </form>
+{% endblock %}

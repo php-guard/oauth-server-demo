@@ -1,10 +1,34 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    {% for k, v in response %}
+        <div>{{ k }} : {{ v }}</div>
+    {% endfor %}
 
+    {% if response.state is defined and response.state != oldState %}
+        The "state" parameter is not valid
+    {% endif %}
+
+    {#{% if response.error is defined or (response.state is defined state != oldState) %}#}
+        <div>
+            Retry :
+            <a href="{{ path('app_oauth_authorize', {
+                client_id: client.identifier,
+                response_type: 'code',
+                redirect_uri: client.redirectUris[0],
+                state: state
+            }) }}">Authorize</a>
+        </div>
+    {#{% endif %}#}
+
+    {% if response.code is defined %}
+        <form method="post">
+            <input type="text" name="client_id" value="{{ client.identifier }}">
+            <input type="text" name="client_secret" value="{{ client.password }}">
+            <input type="text" name="redirect_uri" value="{{ client.redirectUris[0] }}">
+            <input type="text" name="grant_type" value="authorization_code">
+            <input type="text" name="code" value="{{ response.code }}">
+            <button type="submit">Exchange authorization code</button>
+        </form>
+    {% endif %}
 {% endblock %}
-
-{% block collection_widget %}
-
-{% endblock %}
-
