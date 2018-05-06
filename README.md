@@ -1,3 +1,3 @@
-Google playground
+Project in development.
 
-https://developers.google.com/oauthplayground/#step1&url=https%3A%2F%2F&content_type=application%2Fjson&http_method=GET&useDefaultOauthCred=unchecked&oauthEndpointSelect=Custom&oauthAuthEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Fauthorize&oauthTokenEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Ftoken&includeCredentials=unchecked&accessTokenType=bearer&autoRefreshToken=unchecked&accessType=offline&prompt=consent&response_type=code
+Example of use of the repository https://github.com/alexandre-le-borgne/oauth-server
