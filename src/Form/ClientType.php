@@ -55,6 +55,23 @@ class ClientType extends AbstractType
                     'client_secret_post' => 'client_secret_post',
                 ]
             ])
+            ->add('responseTypes', ChoiceType::class, [
+                'multiple' => true,
+                'choices' => [
+                    'code' => 'code',
+                    'token' => 'token',
+                    'id_token' => 'id_token'
+                ]
+            ])
+            ->add('grantTypes', ChoiceType::class, [
+                'multiple' => true,
+                'choices' => [
+                    'authorization_code' => 'authorization_code',
+                    'password' => 'password',
+                    'client_credentials' => 'client_credentials',
+                    'refresh_token' => 'refresh_token'
+                ]
+            ])
             ->add('save', SubmitType::class, ['label' => 'Save Client'])
             ->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
                 $data = $event->getData();

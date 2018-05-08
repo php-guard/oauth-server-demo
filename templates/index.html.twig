@@ -1,19 +1,85 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    <div class="row pt-3">
+        <div class="col">
+            <h4>Authorization request</h4>
+            <form class="clearfix" method="get" action="{{ path('app_oauth_authorize') }}">
+                <div class="form-group row">
+                    <div class="col">
+                        <label for="authorization-request-client-id">Client identifier</label>
+                        <input id="authorization-request-client-id" class="form-control" type="text" name="client_id"
+                               value="{{ client.identifier }}">
+                    </div>
+                    <div class="col">
+                        <label for="authorization-request-redirect-uri">Redirect uri</label>
+                        <input id="authorization-request-redirect-uri" class="form-control" type="text"
+                               name="redirect_uri"
+                               value="{{ client.redirectUris[0] }}">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col">
+                        <label for="authorization-request-state">State</label>
+                        <input id="authorization-request-state" class="form-control" type="text" name="state"
+                               value="{{ state }}">
+                    </div>
+                    <div class="col">
+                        <label for="authorization-request-response-type">Response type</label>
+                        <select id="authorization-request-response-type" class="form-control" name="response_type">
+                            <option value="code">code</option>
+                            <option value="token">token</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        {% if authorization_response is iterable %}
+                            <div id="authorization-response" class=" collapse show mb-3">
+                                <div class="card {% if authorization_response.error is defined %}bg-danger{% else %}bg-success{% endif %}">
+                                    <div class="card-header text-white"><span>Authorization response</span>
+                                        <button type="button" data-toggle="collapse"
+                                                data-target="#authorization-response" class="close">&times
+                                        </button>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        {% for k, v in authorization_response %}
+                                            <li class="list-group-item">
+                                                <strong>{{ k }}</strong>
+                                                <small class="text-muted float-right">
+                                                    {% if k == 'error_uri' %}
+                                                        <a href="{{ v }}" target="_blank">{{ v }}</a>
+                                                    {% else %}
+                                                        {{ v }}
+                                                    {% endif %}
+                                                </small>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <button type="submit" class="btn btn-sm btn-outline-primary float-right">
+                            Send authorization request
+                        </button>
+                    </div>
+                </div>
+            </form>
 
-    <a href="{{ path('app_oauth_authorize', {
-        client_id: client.identifier,
-        response_type: 'code',
-        redirect_uri: client.redirectUris[0],
-        state: state
-    }) }}">Authorize</a>
+            <h4>Access Token request</h4>
 
-    {#<form method="get" action="{{ path('app_oauth_authorize') }}">#}
-        {#<input type="">#}
-    {#</form>#}
+            <a href="https://developers.google.com/oauthplayground/#step1&scopes=email&url=https%3A%2F%2F&content_type=application%2Fjson&http_method=GET&useDefaultOauthCred=unchecked&oauthEndpointSelect=Custom&oauthAuthEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Fauthorize&oauthTokenEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Ftoken&oauthClientId=6ffdbf88e60e22a22917&oauthClientSecret=f050becad22c27a1d47c&includeCredentials=checked&accessTokenType=bearer&autoRefreshToken=unchecked&accessType=offline&prompt=consent&response_type=code">
+                Google playground
+            </a>
+        </div>
 
-    <a href="https://developers.google.com/oauthplayground/#step1&scopes=email&url=https%3A%2F%2F&content_type=application%2Fjson&http_method=GET&useDefaultOauthCred=unchecked&oauthEndpointSelect=Custom&oauthAuthEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Fauthorize&oauthTokenEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Ftoken&oauthClientId=6ffdbf88e60e22a22917&oauthClientSecret=f050becad22c27a1d47c&includeCredentials=checked&accessTokenType=bearer&autoRefreshToken=unchecked&accessType=offline&prompt=consent&response_type=code">
-        Google playground
-    </a>
+        <div class="col">
+            {% include 'partials/authorizations.html.twig' %}
+            {% include 'partials/session.html.twig' %}
+        </div>
+    </div>
 {% endblock %}

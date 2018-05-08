@@ -9,7 +9,9 @@
 namespace App\Controller;
 
 
+use App\Entity\Authorization;
 use App\Entity\Client;
+use App\Entity\User;
 use App\Services\OAuth;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
@@ -43,16 +45,22 @@ class DemoController extends AbstractController
      */
     public function index(Request $request)
     {
-        $client = $this->em->getRepository(Client::class)->findOneBy(['clientName' => 'demo']);
+        $clientsRepository = $this->em->getRepository(Client::class);
+
+        $client = $clientsRepository->findOneBy(['clientName' => 'demo']);
         if (!$client) {
             throw $this->createNotFoundException('Missing demo client');
         }
         $state = bin2hex(random_bytes(5));
         $request->getSession()->set('state', $state);
 
+        $authorizationResponse = $request->getSession()->get('authorization_response');
+        $request->getSession()->remove('authorization_response');
+
         return $this->render('index.html.twig', [
             'client' => $client,
-            'state' => $state
+            'state' => $state,
+            'authorization_response' => $authorizationResponse
         ]);
     }
 
@@ -64,6 +72,19 @@ class DemoController extends AbstractController
      */
     public function oauthCallback(Request $request)
     {
+        //todo CSRF
+//VarDumper::dump($request);die;
+        $response = $request->query->all();
+        $keys = ['state', 'nonce', 'code', 'access_token', 'refresh_token', 'id_token'];
+        foreach ($keys as $key) {
+            if(isset($response[$key])) {
+                $request->getSession()->set($key, $response[$key]);
+            }
+        }
+        $request->getSession()->set('authorization_response', $response);
+
+        return $this->redirectToRoute('app_demo_index');
+
         $client = $this->em->getRepository(Client::class)->findOneBy(['clientName' => 'demo']);
         if (!$client) {
             throw $this->createNotFoundException('Missing demo client');
@@ -86,5 +107,26 @@ class DemoController extends AbstractController
             'state' => $state,
             'oldState' => $oldState
         ]);
+    }
+
+    /**
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @Route("/authorization/{id}/remove")
+     */
+    public function removeAuthorization($id)
+    {
+        $authorization = $this->em->getRepository(Authorization::class)->find($id);
+        if (!$authorization) {
+            throw $this->createNotFoundException();
+        }
+        if ($authorization->getResourceOwner() != $this->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $this->em->remove($authorization);
+        $this->em->flush();
+
+        return $this->redirectToRoute('app_demo_index');
     }
 }

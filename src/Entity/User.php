@@ -62,11 +62,11 @@ class User implements UserInterface, \Serializable
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Authorization", mappedBy="resourceOwner", orphanRemoval=true)
      */
-    private $authorizedClients;
+    private $authorizationsGivenToClients;
 
     public function __construct()
     {
-        $this->authorizedClients = new ArrayCollection();
+        $this->authorizationsGivenToClients = new ArrayCollection();
     }
 
     /**
@@ -160,28 +160,28 @@ class User implements UserInterface, \Serializable
     /**
      * @return Collection|Authorization[]
      */
-    public function getAuthorizedClients(): Collection
+    public function getAuthorizationsGivenToClients(): Collection
     {
-        return $this->authorizedClients;
+        return $this->authorizationsGivenToClients;
     }
 
-    public function addAuthorizedClient(Authorization $authorizedClient): self
+    public function addAuthorizationGivenToClient(Authorization $authorizedClient): self
     {
-        if (!$this->authorizedClients->contains($authorizedClient)) {
-            $this->authorizedClients[] = $authorizedClient;
+        if (!$this->authorizationsGivenToClients->contains($authorizedClient)) {
+            $this->authorizationsGivenToClients[] = $authorizedClient;
             $authorizedClient->setResourceOwner($this);
         }
 
         return $this;
     }
 
-    public function removeAuthorizedClient(Authorization $authorizedClient): self
+    public function removeAuthorizationGivenToClient(Authorization $authorization): self
     {
-        if ($this->authorizedClients->contains($authorizedClient)) {
-            $this->authorizedClients->removeElement($authorizedClient);
+        if ($this->authorizationsGivenToClients->contains($authorization)) {
+            $this->authorizationsGivenToClients->removeElement($authorization);
             // set the owning side to null (unless already changed)
-            if ($authorizedClient->getResourceOwner() === $this) {
-                $authorizedClient->setResourceOwner(null);
+            if ($authorization->getResourceOwner() === $this) {
+                $authorization->setResourceOwner(null);
             }
         }
 

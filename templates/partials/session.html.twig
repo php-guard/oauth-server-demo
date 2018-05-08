@@ -1,0 +1,38 @@
+{% if app.session %}
+    <div class="card" style="min-width: 20rem;">
+        <div class="card-header">
+            Current session
+        </div>
+        {% set keys = ['state', 'nonce', 'code', 'access_token', 'refresh_token', 'id_token'] %}
+        {% set empty = true %}
+        {% for key in keys %}
+            {% if app.session.has(key) %}
+                {% set empty = false %}
+            {% endif %}
+        {% endfor %}
+        {% if empty %}
+            <div class="card-body">
+                There is no data in session
+            </div>
+        {% else %}
+            <ul class="list-group list-group-flush">
+                {% for key in keys %}
+                    {% if app.session.has(key) %}
+                        <li class="list-group-item">
+                            <strong>{{ key }}</strong>
+                            <small class="text-muted float-right">
+                                {{ app.session.get(key) }}
+                            </small>
+                            {#<div class="float-right">#}
+                            {#<a href="{{ path('app_demo_removeauthorization', {id: authorization.id}) }}"#}
+                            {#class="btn btn-sm btn-outline-danger">#}
+                            {#Remove authorization#}
+                            {#</a>#}
+                            {#</div>#}
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endif %}
