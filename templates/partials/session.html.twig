@@ -3,7 +3,7 @@
         <div class="card-header">
             Current session
         </div>
-        {% set keys = ['state', 'nonce', 'code', 'access_token', 'refresh_token', 'id_token'] %}
+        {% set keys = ['state', 'nonce', 'code', 'access_token', 'token_type', 'expires_in', 'scope', 'refresh_token', 'id_token'] %}
         {% set empty = true %}
         {% for key in keys %}
             {% if app.session.has(key) %}

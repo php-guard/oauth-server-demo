@@ -1,0 +1,135 @@
+<h4>Access Token request</h4>
+
+<form class="clearfix" method="post" action="{{ path('app_demo_oauthtoken') }}">
+    <div class="form-group row">
+        <div class="col">
+            <label for="access-token-request-client-id">Client identifier</label>
+            <input id="access-token-request-client-id" class="form-control" type="text" name="client_id"
+                   value="{{ client.identifier }}">
+        </div>
+        <div class="col">
+            <label for="access-token-request-client-secret">Client password</label>
+            <input id="access-token-request-client-secret" class="form-control" type="text" name="client_secret"
+                   value="{{ client.password }}">
+        </div>
+        {#<div class="col">#}
+        {#<label for="access-token-request-redirect-uri">Redirect uri</label>#}
+        {#<input id="access-token-request-redirect-uri" class="form-control" type="text"#}
+        {#name="redirect_uri"#}
+        {#value="{{ client.redirectUris[0] }}">#}
+        {#</div>#}
+    </div>
+    <div class="form-group row">
+        <div class="col">
+            <label for="access-token-request-grant-type">Grant type</label>
+            <select id="access-token-request-grant-type" class="form-control" name="grant_type">
+                <option value="authorization_code">authorization_code</option>
+                <option value="refresh_token">refresh_token</option>
+                <option value="password">password</option>
+                <option value="client_credentials">client_credentials</option>
+            </select>
+        </div>
+        {#<div class="col">#}
+        {#<label for="access-token-request-state">State</label>#}
+        {#<input id="access-token-request-state" class="form-control" type="text" name="state"#}
+        {#value="{{ state }}">#}
+        {#</div>#}
+    </div>
+    <div id="grant-type-selected">
+        <div class="form-group row" id="grant-type-authorization-code">
+            <div class="col">
+                <label for="access-token-request-code">Authorization code</label>
+                <input id="access-token-request-code" class="form-control" type="text" name="code"
+                       value="{{ app.session.get('code') }}">
+            </div>
+            <div class="col">
+                <label for="access-token-request-redirect-uri">Redirect uri</label>
+                <input type="text" id="access-token-request-redirect-uri" class="form-control" name="redirect_uri"
+                       value="{{ client.redirectUris[0] }}">
+            </div>
+        </div>
+    </div>
+
+    {% if access_token_response is iterable %}
+        <div class="row">
+            <div class="col">
+                <div id="access-token-response" class="collapse show mb-3">
+                    <div class="card {% if access_token_response.error is defined %}bg-danger{% else %}bg-success{% endif %}">
+                        <div class="card-header text-white"><span>Access token response</span>
+                            <button type="button" data-toggle="collapse"
+                                    data-target="#access-token-response" class="close">&times
+                            </button>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for k, v in access_token_response %}
+                                <li class="list-group-item">
+                                    <strong>{{ k }}</strong>
+                                    <small class="text-muted float-right">
+                                        {% if k == 'error_uri' %}
+                                            <a href="{{ v }}" target="_blank">{{ v }}</a>
+                                        {% else %}
+                                            {{ v }}
+                                        {% endif %}
+                                    </small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row">
+        <div class="col">
+            <button type="submit" class="btn btn-sm btn-outline-primary float-right">
+                Send access token request
+            </button>
+        </div>
+    </div>
+</form>
+
+<div id="grant-types" class="hidden">
+    <div id="grant-type-refresh-token" class="form-group">
+        <div class="row">
+        <div class="col">
+            <label for="access-token-request-refresh-token">Refresh token</label>
+            <input id="access-token-request-refresh-token" class="form-control" type="text" name="refresh_token"
+                   value="{{ app.session.get('refresh_token') }}">
+        </div>
+        <div class="form-group row">
+            <div class="col">
+                <label for="access-token-request-scope">Scope</label>
+                <input id="access-token-request-scope" class="form-control" type="text" name="scope">
+            </div>
+        </div>
+        </div>
+    </div>
+    <div id="grant-type-password" class="form-group">
+        <div class="row">
+            <div class="col">
+                <label for="access-token-request-username">Username</label>
+                <input id="access-token-request-username" class="form-control" type="text" name="username"
+                       value="demo">
+            </div>
+            <div class="col">
+                <label for="access-token-request-password">Password</label>
+                <input id="access-token-request-password" class="form-control" type="text" name="password"
+                       value="demo">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <label for="access-token-request-scope">Scope</label>
+                <input id="access-token-request-scope" class="form-control" type="text" name="scope">
+            </div>
+        </div>
+    </div>
+    <div id="grant-type-client-credentials" class="form-group">
+        <div class="row">
+            <div class="col">
+                <label for="access-token-request-scope">Scope</label>
+                <input id="access-token-request-scope" class="form-control" type="text" name="scope">
+            </div>
+        </div>
+    </div>
+</div>

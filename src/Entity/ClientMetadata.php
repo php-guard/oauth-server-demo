@@ -49,7 +49,7 @@ trait ClientMetadata
     /**
      * @ORM\Column(type="array", nullable=true)
      */
-    private $scope;
+    private $scopes;
 
     /**
      * @ORM\Column(type="array", nullable=true)
@@ -171,19 +171,14 @@ trait ClientMetadata
         return $this;
     }
 
-    public function getScope(): ?string
+    public function getScopes(): ?array
     {
-        return is_array($this->scope) ? implode(' ', $this->scope) : null;
+        return $this->scopes;
     }
 
-    public function getScopeList(): ?array
+    public function setScopes(?array $scopes): self
     {
-        return $this->scope;
-    }
-
-    public function setScopeList(?array $scope): self
-    {
-        $this->scope = $scope;
+        $this->scopes = $scopes;
 
         return $this;
     }

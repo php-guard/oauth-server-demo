@@ -1,0 +1,72 @@
+<h4>Authorization request</h4>
+<form class="clearfix" method="get" action="{{ path('app_demo_oauthauthorize') }}">
+    <div class="form-group row">
+        <div class="col">
+            <label for="authorization-request-client-id">Client identifier</label>
+            <input id="authorization-request-client-id" class="form-control" type="text" name="client_id"
+                   value="{{ client.identifier }}">
+        </div>
+        <div class="col">
+            <label for="authorization-request-redirect-uri">Redirect uri</label>
+            <input id="authorization-request-redirect-uri" class="form-control" type="text"
+                   name="redirect_uri"
+                   value="{{ client.redirectUris[0] }}">
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col">
+            <label for="authorization-request-state">State</label>
+            <input id="authorization-request-state" class="form-control" type="text" name="state"
+                   value="{{ state }}">
+        </div>
+        <div class="col">
+            <label for="authorization-request-response-type">Response type</label>
+            <select id="authorization-request-response-type" class="form-control" name="response_type">
+                <option value="code">code</option>
+                <option value="token">token</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col">
+            <label for="authorization-request-scope">Scope</label>
+            <input id="authorization-request-scope" class="form-control" type="text" name="scope">
+        </div>
+    </div>
+    {% if authorization_response is iterable %}
+        <div class="row">
+            <div class="col">
+                <div id="authorization-response" class=" collapse show mb-3">
+                    <div class="card {% if authorization_response.error is defined %}bg-danger{% else %}bg-success{% endif %}">
+                        <div class="card-header text-white"><span>Authorization response</span>
+                            <button type="button" data-toggle="collapse"
+                                    data-target="#authorization-response" class="close">&times
+                            </button>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for k, v in authorization_response %}
+                                <li class="list-group-item">
+                                    <strong>{{ k }}</strong>
+                                    <small class="text-muted float-right">
+                                        {% if k == 'error_uri' %}
+                                            <a href="{{ v }}" target="_blank">{{ v }}</a>
+                                        {% else %}
+                                            {{ v }}
+                                        {% endif %}
+                                    </small>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row">
+        <div class="col">
+            <button type="submit" class="btn btn-sm btn-outline-primary float-right">
+                Send authorization request
+            </button>
+        </div>
+    </div>
+</form>
