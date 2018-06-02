@@ -11,6 +11,7 @@ namespace App\OAuth\Storages;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use OAuth2\Roles\ResourceOwnerInterface;
 use OAuth2\Storages\ResourceOwnerStorageInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -44,5 +45,10 @@ class ResourceOwnerStorage implements ResourceOwnerStorageInterface
     function exists(string $identifier): bool
     {
         return (bool)$this->entityManager->getRepository(User::class)->findOneBy(['username' => $identifier]);
+    }
+
+    public function get(string $identifier): ?ResourceOwnerInterface
+    {
+        return $this->entityManager->getRepository(User::class)->findOneBy(['username' => $identifier]);
     }
 }

@@ -10,9 +10,10 @@ namespace App\Controller;
 
 
 use App\Entity\User;
-use App\OAuth\Roles\ResourceOwner;
+use App\OAuth\Roles\AuthorizationServerEndUserEndUser;
 use App\Services\OAuth;
 use Doctrine\ORM\EntityManagerInterface;
+use OAuth2\Endpoints\AuthorizationRequest;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +44,7 @@ class OAuthController extends AbstractController
     public function authorize(Request $request)
     {
         $requestPsr = (new DiactorosFactory())->createRequest($request);
-        $authorizationEndpoint = $this->oauth->getServer()->getAuthorizationEndpoint();
+        $authorizationEndpoint = $this->oauth->getAuthorizationServer()->getAuthorizationEndpoint();
 
         /**
          * @var User $user
@@ -52,17 +53,21 @@ class OAuthController extends AbstractController
             if ($response = $authorizationEndpoint->verifyRequest($requestPsr)) {
                 return $response;
             }
-            $client = $authorizationEndpoint->getClient();
+            $authorizationRequest = $authorizationEndpoint->getAuthorizationRequest();
+            if($authorizationRequest instanceof AuthorizationRequest) {
+                throw new \LogicException();
+            }
 
+            $client = $authorizationRequest->getClient();
             $authorization = $request->request->get('authorization');
-            $resourceOwner = $authorizationEndpoint->getResourceOwner();
-            if (!$resourceOwner instanceof ResourceOwner) {
+            $endUser = $authorizationEndpoint->getAuthorizationServerEndUser();
+            if (!$endUser instanceof AuthorizationServerEndUserEndUser) {
                 throw new \LogicException();
             }
             if ($authorization == 'allow') {
-                $resourceOwner->setDecision($client, $authorizationEndpoint->getScopes(), true);
+                $endUser->setDecision($client, $authorizationRequest->getScopes(), true);
             } else if ($authorization == 'deny') {
-                $resourceOwner->setDecision($client, []);
+                $endUser->setDecision($client, []);
             }
         }
 

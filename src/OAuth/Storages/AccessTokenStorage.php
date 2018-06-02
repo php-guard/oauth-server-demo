@@ -12,9 +12,10 @@ namespace App\OAuth\Storages;
 use App\Entity\Credentials\AccessToken;
 use Doctrine\ORM\EntityManagerInterface;
 use OAuth2\Credentials\AccessTokenInterface;
+use OAuth2\Credentials\TokenInterface;
 use OAuth2\Storages\AccessTokenStorageInterface;
 
-class AccessTokenStorage implements AccessTokenStorageInterface
+class AccessTokenStorage extends AbstractTokenStorage implements AccessTokenStorageInterface
 {
     /**
      * @var EntityManagerInterface
@@ -26,7 +27,7 @@ class AccessTokenStorage implements AccessTokenStorageInterface
         $this->em = $em;
     }
 
-    function get(string $token): ?AccessTokenInterface
+    function get(string $token): ?TokenInterface
     {
         return $this->em->getRepository(AccessToken::class)->findOneBy(['token' => $token]);
     }
@@ -49,7 +50,7 @@ class AccessTokenStorage implements AccessTokenStorageInterface
      * @throws \Exception
      */
     function generate(array $scopes, string $clientIdentifier, ?string $resourceOwnerIdentifier = null,
-                      ?string $authorizationCode = null): AccessTokenInterface
+                      ?string $authorizationCode = null): TokenInterface
     {
         $accessToken = new AccessToken();
         $accessToken
@@ -73,18 +74,11 @@ class AccessTokenStorage implements AccessTokenStorageInterface
 
     /**
      * @param string $code
-     * @return AccessTokenInterface[]|null
+     * @return AccessTokenInterface[]
      */
-    function getByAuthorizationCode(string $code): ?array
+    function getByAuthorizationCode(string $code): array
     {
         return $this->em->getRepository(AccessToken::class)->findBy(['authorizationCode' => $code]);
-    }
-
-    function hasExpired(AccessTokenInterface $accessToken): bool
-    {
-        $now = new \DateTime('now', new \DateTimeZone('UTC'));
-//        $token = $this->em->getRepository(AccessToken::class)->findOneBy(['token' => $accessToken->getToken()]);
-        return $accessToken ? $accessToken->getExpiresAt() < $now : true;
     }
 
     function getSize(): ?int

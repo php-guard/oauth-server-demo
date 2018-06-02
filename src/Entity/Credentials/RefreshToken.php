@@ -44,6 +44,11 @@ class RefreshToken implements RefreshTokenInterface
      */
     private $expiresAtDate;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $authorizationCode;
+
     public function getId()
     {
         return $this->id;
@@ -119,6 +124,18 @@ class RefreshToken implements RefreshTokenInterface
     public function setScopes(array $scopes): self
     {
         $this->scopes = $scopes;
+
+        return $this;
+    }
+
+    public function getAuthorizationCode(): ?string
+    {
+        return $this->authorizationCode;
+    }
+
+    public function setAuthorizationCode(?string $authorizationCode): self
+    {
+        $this->authorizationCode = $authorizationCode;
 
         return $this;
     }

@@ -14,10 +14,11 @@ use App\Entity\Client;
 use App\Entity\User;
 use App\EventListener\AuthenticationEventListener;
 use Doctrine\ORM\EntityManagerInterface;
-use OAuth2\Extensions\OpenID\Endpoints\AuthorizationEndpoint;
-use OAuth2\Extensions\OpenID\Roles\ResourceOwnerInterface;
+use OAuth2\Endpoints\AuthorizationRequest;
+use OAuth2\Extensions\OpenID\Roles\AuthorizationServerEndUserEndUserInterface;
 use OAuth2\Roles\ClientInterface;
-use OAuth2\Roles\Clients\RegisteredClient;
+use OAuth2\Roles\ClientTypes\RegisteredClient;
+use OAuth2\Roles\ResourceOwnerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -27,7 +28,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 
-class ResourceOwner implements ResourceOwnerInterface
+class AuthorizationServerEndUserEndUser implements AuthorizationServerEndUserEndUserInterface
 {
     /**
      * @var TokenStorageInterface
@@ -81,9 +82,20 @@ class ResourceOwner implements ResourceOwnerInterface
         $this->requestStack = $requestStack;
     }
 
+    public function getAuthenticatedResourceOwner(): ?ResourceOwnerInterface
+    {
+        if($this->authorizationChecker->isGranted('ROLE_USER')) {
+            return $this->tokenStorage->getToken()->getUser();
+        }
+        return null;
+    }
+
     public function getLastTimeActivelyAuthenticated(): ?\DateTime
     {
-        return $this->session->get(AuthenticationEventListener::LAST_TIME_ACTIVELY_AUTHENTICATED);
+        if($this->getAuthenticatedResourceOwner()) {
+            return $this->session->get(AuthenticationEventListener::LAST_TIME_ACTIVELY_AUTHENTICATED);
+        }
+        return null;
     }
 
     /**
@@ -92,7 +104,7 @@ class ResourceOwner implements ResourceOwnerInterface
      * @param null|string $loginHint
      * @return ResponseInterface
      */
-    public function authenticate(bool $accountSelectionRequired = false, ?string $loginHint = null): ResponseInterface
+    public function authenticateResourceOwner(bool $accountSelectionRequired = false, ?string $loginHint = null): ResponseInterface
     {
         $targetPath = $this->requestStack->getCurrentRequest()->getRequestUri();
         return new RedirectResponse($this->router->generate('login', ['_target_path' => $targetPath]));
@@ -106,10 +118,10 @@ class ResourceOwner implements ResourceOwnerInterface
      * @param bool $alwaysAuthenticate
      * @return bool
      */
-    public function isAuthenticated(bool $alwaysAuthenticate = false): bool
-    {
-        return $this->authorizationChecker->isGranted('ROLE_USER');
-    }
+//    public function isResourceOwnerAuthenticated(bool $alwaysAuthenticate = false): bool
+//    {
+//        return $this->authorizationChecker->isGranted('ROLE_USER');
+//    }
 
     /**
      * Client authorization is denied if $allowedScopes is empty
@@ -182,23 +194,21 @@ class ResourceOwner implements ResourceOwnerInterface
         return $this->allowedScopes;
     }
 
-    public function isInteractionRequiredForConsent(AuthorizationEndpoint $authorizationEndpoint): bool
+    public function isInteractionRequiredForConsent(AuthorizationRequest $authorizationRequest): bool
     {
         return true;
     }
 
-    public function getIdentifier(): string
+    /**
+     * @param AuthorizationRequest $authorizationRequest
+     * @return ResponseInterface
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
+     */
+    public function obtainConsent(AuthorizationRequest $authorizationRequest): ResponseInterface
     {
-        /**
-         * @var User $user
-         */
-        $user = $this->tokenStorage->getToken()->getUser();
-        return $user->getUsername();
-    }
-
-    public function obtainConsent(\OAuth2\Endpoints\AuthorizationEndpoint $authorizationEndpoint, array $requestData): ResponseInterface
-    {
-        return new HtmlResponse($this->templating->render('oauth/authorize.html.twig', ['data' => $requestData]));
+        return new HtmlResponse($this->templating->render('oauth/authorize.html.twig', ['authorization' => $authorizationRequest]));
     }
 
     public function getClaims(array $scopes): array

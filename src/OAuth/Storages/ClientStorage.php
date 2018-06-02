@@ -11,11 +11,10 @@ namespace App\OAuth\Storages;
 
 use App\Entity\Client;
 use Doctrine\ORM\EntityManagerInterface;
-use OAuth2\Roles\ClientInterface;
-use OAuth2\Roles\Clients\NativeApplicationClient;
-use OAuth2\Roles\Clients\RegisteredClient;
-use OAuth2\Roles\Clients\UserAgentBasedApplicationClient;
-use OAuth2\Roles\Clients\WebApplicationClient;
+use OAuth2\Roles\ClientProfiles\NativeApplicationClient;
+use OAuth2\Roles\ClientProfiles\UserAgentBasedApplicationClient;
+use OAuth2\Roles\ClientProfiles\WebApplicationClient;
+use OAuth2\Roles\ClientTypes\RegisteredClient;
 use OAuth2\Storages\ClientStorageInterface;
 
 class ClientStorage implements ClientStorageInterface

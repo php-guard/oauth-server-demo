@@ -1,0 +1,56 @@
+<div class="card mb-4" style="min-width: 20rem;">
+    <div class="card-header">
+        Resource server
+    </div>
+    <div class="card-body">
+        <form class="clearfix" method="post" action="{{ path('app_demo_resourceowner') }}">
+            <div class="form-group row">
+                <label for="resource-owner-bearer-token">Bearer token</label>
+                <input id="resource-owner-bearer-token" class="form-control"
+                       type="text" name="bearer_token" value="{{ app.session.get('access_token') }}">
+                <label for="resource-owner-required-scope">Required scopes</label>
+                <input id="resource-owner-required-scope" class="form-control" type="text" name="required_scope" value="email profile">
+                <label for="resource-owner-bearer-authentication-method">Bearer authentication method</label>
+                <select id="resource-owner-bearer-authentication-method" name="bearer_authentication_method" class="form-control">
+                    <option value="authorization_request_header_field">authorization_request_header_field</option>
+                </select>
+            </div>
+            {% if resource_owner_response is iterable %}
+                <div class="row">
+                    <div class="col">
+                        <div id="access-token-response" class="collapse show mb-3">
+                            <div class="card {% if resource_owner_response.status is defined %}bg-danger{% else %}bg-success{% endif %}">
+                                <div class="card-header text-white"><span>Resource owner response</span>
+                                    <button type="button" data-toggle="collapse"
+                                            data-target="#access-token-response" class="close">&times
+                                    </button>
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    {% for k, v in resource_owner_response %}
+                                        <li class="list-group-item">
+                                            <strong>{{ k }}</strong>
+                                            <small class="text-muted float-right">
+                                                {% if k == 'error_uri' %}
+                                                    <a href="{{ v }}" target="_blank">{{ v }}</a>
+                                                {% else %}
+                                                    {{ v }}
+                                                {% endif %}
+                                            </small>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            <div class="row">
+                <div class="col">
+                    <button type="submit" class="btn btn-sm btn-outline-primary float-right">
+                        Send request
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

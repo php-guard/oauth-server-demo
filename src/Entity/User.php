@@ -11,8 +11,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\ManyToMany;
-use OAuth2\Roles\ClientInterface;
+use OAuth2\Roles\ResourceOwnerInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -23,7 +22,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @UniqueEntity(fields="email", message="Email already taken")
  * @UniqueEntity(fields="username", message="Username already taken")
  */
-class User implements UserInterface, \Serializable
+class User implements UserInterface, \Serializable, ResourceOwnerInterface
 {
     /**
      * @ORM\Id
@@ -67,6 +66,11 @@ class User implements UserInterface, \Serializable
     public function __construct()
     {
         $this->authorizationsGivenToClients = new ArrayCollection();
+    }
+
+    public function getIdentifier(): string
+    {
+        return $this->getUsername();
     }
 
     /**
@@ -187,6 +191,5 @@ class User implements UserInterface, \Serializable
 
         return $this;
     }
-
 
 }

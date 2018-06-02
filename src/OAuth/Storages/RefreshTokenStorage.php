@@ -12,9 +12,10 @@ namespace App\OAuth\Storages;
 use App\Entity\Credentials\RefreshToken;
 use Doctrine\ORM\EntityManagerInterface;
 use OAuth2\Credentials\RefreshTokenInterface;
+use OAuth2\Credentials\TokenInterface;
 use OAuth2\Storages\RefreshTokenStorageInterface;
 
-class RefreshTokenStorage implements RefreshTokenStorageInterface
+class RefreshTokenStorage extends AbstractTokenStorage implements RefreshTokenStorageInterface
 {
     /**
      * @var EntityManagerInterface
@@ -26,7 +27,7 @@ class RefreshTokenStorage implements RefreshTokenStorageInterface
         $this->em = $em;
     }
 
-    function get(string $token): ?RefreshTokenInterface
+    function get(string $token): ?TokenInterface
     {
         return $this->em->getRepository(RefreshToken::class)->findOneBy(['token' => $token]);
     }
@@ -44,10 +45,11 @@ class RefreshTokenStorage implements RefreshTokenStorageInterface
      * @param array $scopes
      * @param string $clientIdentifier
      * @param null|string $resourceOwnerIdentifier
+     * @param null|string $authorizationCode
      * @return RefreshTokenInterface
-     * @throws \Exception
      */
-    function generate(array $scopes, string $clientIdentifier, ?string $resourceOwnerIdentifier = null): RefreshTokenInterface
+    function generate(array $scopes, string $clientIdentifier,
+                      ?string $resourceOwnerIdentifier = null, ?string $authorizationCode = null): TokenInterface
     {
         $refreshToken = new RefreshToken();
         $refreshToken
@@ -55,7 +57,8 @@ class RefreshTokenStorage implements RefreshTokenStorageInterface
             ->setScopes($scopes)
             ->setClientIdentifier($clientIdentifier)
             ->setExpiresAt((new \DateTime('now', new \DateTimeZone('UTC')))->modify('+7 days'))
-            ->setResourceOwnerIdentifier($resourceOwnerIdentifier);
+            ->setResourceOwnerIdentifier($resourceOwnerIdentifier)
+            ->setAuthorizationCode($authorizationCode);
 
         $this->em->persist($refreshToken);
         $this->em->flush();
@@ -67,10 +70,17 @@ class RefreshTokenStorage implements RefreshTokenStorageInterface
         return 604800;
     }
 
-    function hasExpired(RefreshTokenInterface $refreshToken): bool
+    /**
+     * @param string $code
+     * @return RefreshTokenInterface[]
+     */
+    function getByAuthorizationCode(string $code): array
     {
-        $now = new \DateTime('now', new \DateTimeZone('UTC'));
-//        $token = $this->em->getRepository(RefreshToken::class)->findOneBy(['token' => $refreshToken->getToken()]);
-        return $refreshToken ? $refreshToken->getExpiresAt() < $now : true;
+        return $this->em->getRepository(RefreshToken::class)->findBy(['authorizationCode' => $code]);
+    }
+
+    function getSize(): ?int
+    {
+        return null;
     }
 }
