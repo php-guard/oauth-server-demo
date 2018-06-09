@@ -46,8 +46,8 @@ class DemoController extends AbstractController
     {
         $clientsRepository = $this->em->getRepository(Client::class);
 
-        $client = $clientsRepository->findOneBy(['clientName' => 'demo']);
-        if (!$client) {
+        $defaultClient = $clientsRepository->findOneBy(['clientName' => 'demo']);
+        if (!$defaultClient) {
             throw $this->createNotFoundException('Missing demo client');
         }
         $state = bin2hex(random_bytes(5));
@@ -61,7 +61,8 @@ class DemoController extends AbstractController
         $request->getSession()->remove('resource_owner_response');
 
         return $this->render('index.html.twig', [
-            'client' => $client,
+            'clients' => $clientsRepository->findAll(),
+            'client' => $defaultClient,
             'state' => $state,
             'authorization_response' => $authorizationResponse,
             'access_token_response' => $accessTokenResponse,
@@ -72,20 +73,26 @@ class DemoController extends AbstractController
     /**
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
-     * @throws \OAuth2\Exceptions\OAuthException
      * @Route("/demo/resourceowner")
      */
     public function resourceOwner(Request $request) {
         $bearerToken = $request->request->get('bearer_token');
-        $requiredScopes = explode(' ', $request->request->get('required_scope'));
+        $requiredScopes = $request->request->get('required_scope');
         $requestPsr = ServerRequestFactory::fromGlobals();
 
         switch ($request->request->get('bearer_authentication_method')) {
             case 'authorization_request_header_field':
                 $requestPsr = $requestPsr->withHeader('Authorization', 'Bearer '.$bearerToken);
+                break;
+            case 'form_encoded_body_parameter':
+                $requestPsr = $requestPsr->withParsedBody(['access_token'=> $bearerToken]);
+                break;
+            case 'uri_query_parameter':
+                $requestPsr = $requestPsr->withQueryParams(['access_token'=> $bearerToken]);
+                break;
         }
 
-        if($errorResponse = $this->oauth->getResourceServer()->verifyRequest($requestPsr, $requiredScopes, 'demo')) {
+        if($errorResponse = $this->oauth->getResourceServer()->verifyRequest($requestPsr, 'demo', $requiredScopes)) {
             $response = [
                 'WWW-Authenticate' => $errorResponse->getHeader('WWW-Authenticate')[0],
                 'status' => $errorResponse->getStatusCode()
@@ -93,9 +100,12 @@ class DemoController extends AbstractController
         }
         else {
             $authenticatedRequest = $this->oauth->getResourceServer()->getAuthenticatedRequest();
+            $now = new \DateTime('now', new \DateTimeZone('UTC'));
+            $expireIn = $authenticatedRequest->getAccessToken()->getExpiresAt()->getTimestamp() - $now->getTimestamp();
             $response = [
                 'client' => $authenticatedRequest->getClient()->getIdentifier(),
                 'scopes' => implode(' ', $authenticatedRequest->getScopes()),
+                'expires_in' => $expireIn
             ];
             if($authenticatedRequest->getResourceOwner()) {
                 $response['resource_owner'] = $authenticatedRequest->getResourceOwner()->getIdentifier();

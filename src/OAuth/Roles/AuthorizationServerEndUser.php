@@ -15,7 +15,7 @@ use App\Entity\User;
 use App\EventListener\AuthenticationEventListener;
 use Doctrine\ORM\EntityManagerInterface;
 use OAuth2\Endpoints\AuthorizationRequest;
-use OAuth2\Extensions\OpenID\Roles\AuthorizationServerEndUserEndUserInterface;
+use OAuth2\Extensions\OpenID\Roles\AuthorizationServer\EndUserInterface;
 use OAuth2\Roles\ClientInterface;
 use OAuth2\Roles\ClientTypes\RegisteredClient;
 use OAuth2\Roles\ResourceOwnerInterface;
@@ -28,7 +28,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\RedirectResponse;
 
-class AuthorizationServerEndUserEndUser implements AuthorizationServerEndUserEndUserInterface
+class AuthorizationServerEndUser implements EndUserInterface
 {
     /**
      * @var TokenStorageInterface

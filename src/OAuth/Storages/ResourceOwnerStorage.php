@@ -32,10 +32,12 @@ class ResourceOwnerStorage implements ResourceOwnerStorageInterface
         $this->userPasswordEncoder = $userPasswordEncoder;
     }
 
-    function validateCredentials(string $username, string $password): ?string
+    function validateCredentials(ResourceOwnerInterface $resourceOwner, string $password): bool
     {
-        $resourceOwner = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $username]);
-        return $this->userPasswordEncoder->isPasswordValid($resourceOwner, $password) ? $resourceOwner->getUsername() : null;
+        if($resourceOwner instanceof User) {
+            return $this->userPasswordEncoder->isPasswordValid($resourceOwner, $password);
+        }
+        return false;
     }
 
     /**

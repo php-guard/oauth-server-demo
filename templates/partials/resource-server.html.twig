@@ -13,6 +13,8 @@
                 <label for="resource-owner-bearer-authentication-method">Bearer authentication method</label>
                 <select id="resource-owner-bearer-authentication-method" name="bearer_authentication_method" class="form-control">
                     <option value="authorization_request_header_field">authorization_request_header_field</option>
+                    <option value="form_encoded_body_parameter">form_encoded_body_parameter</option>
+                    <option value="uri_query_parameter">uri_query_parameter</option>
                 </select>
             </div>
             {% if resource_owner_response is iterable %}

@@ -17,7 +17,7 @@ class Authorization
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="authorizedClients")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="authorizationsGivenToClients")
      * @ORM\JoinColumn(nullable=false)
      */
     private $resourceOwner;

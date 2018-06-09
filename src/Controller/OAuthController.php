@@ -10,7 +10,7 @@ namespace App\Controller;
 
 
 use App\Entity\User;
-use App\OAuth\Roles\AuthorizationServerEndUserEndUser;
+use App\OAuth\Roles\AuthorizationServerEndUser;
 use App\Services\OAuth;
 use Doctrine\ORM\EntityManagerInterface;
 use OAuth2\Endpoints\AuthorizationRequest;
@@ -54,14 +54,14 @@ class OAuthController extends AbstractController
                 return $response;
             }
             $authorizationRequest = $authorizationEndpoint->getAuthorizationRequest();
-            if($authorizationRequest instanceof AuthorizationRequest) {
+            if(!$authorizationRequest instanceof AuthorizationRequest) {
                 throw new \LogicException();
             }
 
             $client = $authorizationRequest->getClient();
             $authorization = $request->request->get('authorization');
             $endUser = $authorizationEndpoint->getAuthorizationServerEndUser();
-            if (!$endUser instanceof AuthorizationServerEndUserEndUser) {
+            if (!$endUser instanceof AuthorizationServerEndUser) {
                 throw new \LogicException();
             }
             if ($authorization == 'allow') {
@@ -82,6 +82,6 @@ class OAuthController extends AbstractController
     public function token(Request $request)
     {
         $request = (new DiactorosFactory())->createRequest($request);
-        return $this->oauth->getServer()->getTokenEndpoint()->handleRequest($request);
+        return $this->oauth->getAuthorizationServer()->getTokenEndpoint()->handleRequest($request);
     }
 }

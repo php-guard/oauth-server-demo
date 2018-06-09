@@ -5,12 +5,13 @@
         <div class="col">
             {% include 'partials/authorization-request.html.twig' %}
             {% include 'partials/access-token-request.html.twig' %}
+            {% include 'partials/clients.html.twig' %}
         </div>
 
         <div class="col">
-            <a href="https://developers.google.com/oauthplayground/#step1&scopes=email&url=https%3A%2F%2F&content_type=application%2Fjson&http_method=GET&useDefaultOauthCred=unchecked&oauthEndpointSelect=Custom&oauthAuthEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Fauthorize&oauthTokenEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Ftoken&oauthClientId=6ffdbf88e60e22a22917&oauthClientSecret=f050becad22c27a1d47c&includeCredentials=checked&accessTokenType=bearer&autoRefreshToken=unchecked&accessType=offline&prompt=consent&response_type=code">
-                Google playground
-            </a>
+            {#<a href="https://developers.google.com/oauthplayground/#step1&scopes=email&url=https%3A%2F%2F&content_type=application%2Fjson&http_method=GET&useDefaultOauthCred=unchecked&oauthEndpointSelect=Custom&oauthAuthEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Fauthorize&oauthTokenEndpointValue=http%3A%2F%2Flocalhost%3A8000%2Foauth%2Ftoken&oauthClientId=6ffdbf88e60e22a22917&oauthClientSecret=f050becad22c27a1d47c&includeCredentials=checked&accessTokenType=bearer&autoRefreshToken=unchecked&accessType=offline&prompt=consent&response_type=code">#}
+                {#Google playground#}
+            {#</a>#}
 
             {% include 'partials/resource-server.html.twig' %}
             {% include 'partials/authorizations.html.twig' %}
